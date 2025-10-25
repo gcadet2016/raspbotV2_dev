@@ -4,6 +4,7 @@
 #    python RaspbotV2.py
 # ou /usr/bin/python /home/pi/raspbotV2_tests/RaspbotV2.py
 #
+# Camera USB
 # Run Streaming client
 # on PC laptop browse: http://192.168.1.50:8080/?action=stream?dummy=param.mjpg
 
