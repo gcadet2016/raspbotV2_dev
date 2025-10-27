@@ -23,9 +23,7 @@ from pathlib import Path
 # and delegate the face box drawing to its callback function, thereby running the
 # preview at the full rate with face updates as and when they are ready.
 
-# face_detector = cv2.CascadeClassifier("/usr/share/opencv4/haarcascades/haarcascade_frontalface_default.xml")
-cascade_path = Path(cv2.data.haarcascades) / "haarcascade_frontalface_default.xml"
-face_detector = cv2.CascadeClassifier(str(cascade_path))
+face_detector = cv2.CascadeClassifier("/usr/share/opencv4/haarcascades/haarcascade_frontalface_default.xml")
 
 def draw_faces(request):
     global faces
