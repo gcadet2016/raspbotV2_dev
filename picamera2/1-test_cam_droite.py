@@ -14,7 +14,8 @@ preview_config_droite = picam2_droite.create_preview_configuration(main={"size":
 
 picam2_droite.configure(preview_config_droite)
 
-picam2_droite.start_preview(Preview.QTGL)
+#picam2_droite.start_preview(Preview.QTGL)
+picam2_droite.start_preview(Preview.QT) # when connected to raspbot with VNC
 
 picam2_droite.start()
 time.sleep(10)

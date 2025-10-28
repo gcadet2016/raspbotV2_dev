@@ -1,15 +1,16 @@
-# Updated by gcadet 
-# Open a QTGL preview window and run face detection on a lores YUV stream,
+# Updated by gcadet
+# Open a QT (or QTGL) preview window and run face detection on a lores YUV stream,
 # drawing boxes on the main preview via a callback.
 #
 # Exemple modifié pour utiliser Preview.QT (VNC)
-# Testé le: 25/10/2025 - Python V3.11.2
+# Testé le: 28/10/2025 - Python V3.11.2
 #
 # Prérequis:
 #   sudo apt update
 #   sudo apt install opencv-data
 #   # optionnel si cv2 manque
 #   sudo apt install python3-opencv
+#
 #!/usr/bin/python3
 import time
 
@@ -17,6 +18,7 @@ import cv2
 
 from picamera2 import MappedArray, Picamera2, Preview
 from pathlib import Path
+from libcamera import Transform 
 
 # This version creates a lores YUV stream, extracts the Y channel and runs the face
 # detector directly on that. We use the supplied OpenGL accelerated preview window
@@ -42,7 +44,10 @@ picam2 = Picamera2()       # utilisation de la caméra 0 (par défaut) : camera 
 # picam2.start_preview(Preview.QTGL)
 picam2.start_preview(Preview.QT)
 config = picam2.create_preview_configuration(main={"size": (640, 480)},
-                                             lores={"size": (320, 240), "format": "YUV420"})
+                                             lores={"size": (320, 240), 
+                                             "format": "YUV420"},
+                                             transform=Transform(vflip=True)
+                                             )
 picam2.configure(config)
 
 (w0, h0) = picam2.stream_configuration("main")["size"]

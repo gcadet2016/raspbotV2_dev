@@ -1,9 +1,9 @@
-# Testé: 2025-02-18
+# Testé: 2025-10-28
 
 import cv2
 
 # Lire l'image
-image = cv2.imread('/home/pi/raspbotV2_tests/picamera2/test.jpg')
+image = cv2.imread('/home/pi/raspbotV2_dev/picamera2/test.jpg')
 
 # Vérifier si l'image a été correctement chargée
 if image is None:

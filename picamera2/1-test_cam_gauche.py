@@ -14,7 +14,8 @@ preview_config_gauche = picam2_gauche.create_preview_configuration(main={"size":
 
 picam2_gauche.configure(preview_config_gauche)
 
-picam2_gauche.start_preview(Preview.QTGL)
+# picam2_gauche.start_preview(Preview.QTGL)
+picam2_gauche.start_preview(Preview.QT) # when connected to raspbot with VNC
 
 picam2_gauche.start()
 time.sleep(10)
