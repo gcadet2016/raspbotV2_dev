@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # encoding:utf-8
 # Source: https://github.com/spmallick/learnopencv/tree/master/CameraCalibration
-#   Modifié avec TonyPi Calibration.py
+#   Modifié pour RapsbotV2 Calibration.py
+# Testé le: 2025-10-28
 
 import cv2
 import glob
@@ -82,7 +83,9 @@ for i in range(len(objpoints)):
 print ("total error: ", mean_error/len(objpoints))
 
 # Save parameter
-np.savez(calibration_param_path, dist_array = dist, mtx_array = mtx, fmt="%d", delimiter=" ")
+# np.savez(calibration_param_path, dist_array = dist, mtx_array = mtx, fmt="%d", delimiter=" ")
+# np.savez n’accepte pas fmt= ou delimiter=: ces options appartiennent à np.savetxt. Si tu passes fmt=... à savez, cela sera interprété comme un nouvel “tableau” à sauvegarder sous la clé "fmt" (une chaîne), ce qui n’est probablement pas souhaité.
+np.savez(calibration_param_path, dist_array = dist, mtx_array = mtx)
 print('save successful')
 
 # Read the 10th image to test the correction
