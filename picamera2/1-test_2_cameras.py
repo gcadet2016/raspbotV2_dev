@@ -12,8 +12,8 @@ from libcamera import Transform
 picam2_droite = Picamera2(0)
 picam2_gauche = Picamera2(1)
 
-preview_config_droite = picam2_droite.create_preview_configuration(main={"size": (800, 600)}, transform=Transform(vflip=True))
-preview_config_gauche = picam2_gauche.create_preview_configuration(main={"size": (800, 600)}, transform=Transform(vflip=True))
+preview_config_droite = picam2_droite.create_preview_configuration(main={"size": (800, 600)}, transform=Transform(vflip=1, hflip=1))
+preview_config_gauche = picam2_gauche.create_preview_configuration(main={"size": (800, 600)}, transform=Transform(vflip=1, hflip=1))
 
 picam2_droite.configure(preview_config_droite)
 picam2_gauche.configure(preview_config_gauche)

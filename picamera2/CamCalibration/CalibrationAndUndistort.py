@@ -91,14 +91,28 @@ print('save successful')
 # Read the 10th image to test the correction
 img = cv2.imread(save_path + '10.jpg')
 h, w = img.shape[:2]
+# Refining the camera matrix using parameters obtained by calibration
 newcameramtx, roi=cv2.getOptimalNewCameraMatrix(mtx,dist,(w,h),1,(w,h))
 
-# undistort
+
+# Method 1 to undistort the image
+dst = cv2.undistort(img, mtx, dist, None, newcameramtx)
+
+# Method 2 to undistort the image
 mapx,mapy = cv2.initUndistortRectifyMap(mtx,dist,None,newcameramtx,(w,h),5)
 dst = cv2.remap(img,mapx,mapy,cv2.INTER_LINEAR)
 
-cv2.imshow('calibration', dst)
-cv2.imshow('original', img)
+# Displaying the undistorted image
+cv2.imshow('Undistorted image', dst)
+cv2.imshow('Original image', img)
+
+# Cropping the image
+x,y,w,h = roi
+dst = dst[y:y+h, x:x+w]
+cv2.imshow("Cropped undistorted image",dst)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
 key = cv2.waitKey(0)
 if key != -1:
     cv2.destroyAllWindows()
