@@ -12,10 +12,16 @@ square_length = 3
 calibration_size = (7, 7)
 
 # The storage path for collecting calibration images (end with /)
-save_path = '/home/pi/raspbotV2_tests/picamera2/CamCalibration/calibration_images/'
+save_path = '/home/pi/raspbotV2_dev/picamera2/CamCalibration/calibration_images/'
+# Path for left and right camera images in stereo calibration
+save_pathL = '/home/pi/raspbotV2_dev/picamera2/CamCalibration/data/stereoL/'   # cam 1
+save_pathR = '/home/pi/raspbotV2_dev/picamera2/CamCalibration/data/stereoR/'   # cam 0
 
 # The storage path for calibration parameters
-calibration_param_path = '/home/pi/raspbotV2_tests/picamera2/CamCalibration/calibration_param'
+calibration_param_path = '/home/pi/raspbotV2_dev/picamera2/CamCalibration/calibration_param'
+
+calibration_param_pathL = '/home/pi/raspbotV2_dev/picamera2/CamCalibration/calib_stereo_param_camL'  # cam 1
+calibration_param_pathR = '/home/pi/raspbotV2_dev/picamera2/CamCalibration/calib_stereo_param_camR'  # cam 0
 
 # the storage path for mapping parameters
-map_param_path = '/home/pi/raspbotV2_tests/picamera2/CamCalibration/map_param'
+map_param_path = '/home/pi/raspbotV2_dev/picamera2/CamCalibration/map_param'

@@ -21,7 +21,9 @@ from libcamera import Transform
 # else:
 #     cap = Camera.Camera()
 #     cap.camera_open() 
-picam2 = Picamera2(0)  # right camera
+
+# picam2 = Picamera2(0)  # right camera
+picam2 = Picamera2(1)  # left camera
 capture_config = picam2.create_preview_configuration(transform=Transform(vflip=1, hflip=1))
 picam2.configure(capture_config)
 

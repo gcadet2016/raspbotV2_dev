@@ -10,11 +10,12 @@ from picamera2 import Picamera2, Preview
 
 picam2_droite = Picamera2(0)
 
-preview_config_droite = picam2_droite.create_preview_configuration(main={"size": (800, 600)})
+preview_config_droite = picam2_droite.create_preview_configuration(main={"size": (800, 600)}, transform=Transform(vflip=1, hflip=1))
 
 picam2_droite.configure(preview_config_droite)
 
-picam2_droite.start_preview(Preview.QTGL)
+#picam2_droite.start_preview(Preview.QTGL)
+picam2_droite.start_preview(Preview.QT) # when connected to raspbot with VNC
 
 picam2_droite.start()
 time.sleep(10)
