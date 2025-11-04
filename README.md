@@ -1,4 +1,4 @@
-# RaspbotV2tests
+# RaspbotV2_dev
 Tests des fonctionnalités Yahboom Raspbot V2 
 
 
@@ -9,3 +9,5 @@ Tests des fonctionnalités Yahboom Raspbot V2
 - Un tas d'exemples
 - Des tests
 
+# Backup vers laptop
+scp -rp pi@192.168.1.50:/home/pi/raspbotV2_dev C:\Users\guigu\OneDrive\Dev\GitRepositories

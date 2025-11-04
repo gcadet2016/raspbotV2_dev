@@ -40,8 +40,8 @@ https://github.com/Matchstic/depthmapper/blob/main/lib/calibration.py
 
 | Etape	| Fichier | Description |
 |:--:|:--:|:--:|
-| 1 | CollectCalibPictures_2cam.py | Collecte les images de calibration qui seront stockées dans data/stereoL et data/stereoR |
-| 2 | stereoCalibration.py | Réalise la calibration des 2 caméras. Le résultat est dans calib_stereo_param_camL.npz et calib_stereo_param_camR.npz |
+| 1 | stereoCalib_collect_img_2cam.py | Collecte les images de calibration qui seront stockées dans data/stereoL et data/stereoR |
+| 2 | stereoCalib_compute.py | Réalise la calibration des 2 caméras. Le résultat est dans calib_stereo_param_camL.npz et calib_stereo_param_camR.npz |
 | 3 | stereoUndistortion.py | Applique la correction de distortion à l'image 10 |
 
 Placer le damier devant les 2 caméras.  
@@ -50,7 +50,16 @@ Attention les 2 fenêtres de vidéos sont superposées.
  
 Ensuite  lancer stereoCalibration.py.
 
+# Rectify maps
 
+stereoCalib_compute.py génère un fichier stereo_rectify_maps.xml qui contient des matrices.   
+BlocMatch_tuning.py contient un certain nombre de vérifications:
+1. Vérification des matrices  (non vides - voir aussi display_rectify_maps.py)
+2. Les maps (Left_Stereo_Map_x/y, Right_…_y) ont été calculées pour une résolution donnée. Cette résolution a été définie lors de la collecte des images (stereoCalib_collect_img_2cam.py). Le script vérifie les réslutions.
+3. Vérification du format cv2.CV_32FC1
+
+| Etape	| Fichier | Description |
+|:--:|:--:|:--:|
 
 
 

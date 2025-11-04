@@ -3,7 +3,7 @@
 """
 Stereo obstacle detection using two Picamera2 cameras.
 
-Replicates the logic of 25.1-temp.py (which used cv2.VideoCapture)
+Replicates the logic of 25.2-temp.py (which used cv2.VideoCapture)
 but with Picamera2. It captures synchronized-ish frames from two
 camera instances, computes disparity with StereoSGBM, evaluates a
 ROI occupancy ratio, and issues placeholder motor commands.
@@ -32,6 +32,7 @@ CAM_RIGHT_INDEX = 0
 CAM_LEFT_INDEX = 1
 CAM_WIDTH = 640
 CAM_HEIGHT = 480
+IMG_FMT = 'BGR888' # good CPU format; convert to gray in cv2
 
 NUM_DISPARITIES = 128  # must be multiple of 16
 BLOCK_SIZE = 11        # odd number
@@ -50,8 +51,8 @@ TURN_DURATION = 0.6   # seconds
 @dataclass
 class CameraConfig:
     size: tuple = (CAM_WIDTH, CAM_HEIGHT)
-    format: str = "RGB888"  # good CPU format; convert to gray in cv2
-    buffer_count: int = 2    # keep latency low
+    format: str = IMG_FMT   # good CPU format; convert to gray in cv2
+    buffer_count: int = 2   # keep latency low
 
 
 def create_picam(index: int, cfg: CameraConfig) -> Picamera2:
@@ -59,7 +60,7 @@ def create_picam(index: int, cfg: CameraConfig) -> Picamera2:
     camera_cfg = cam.create_preview_configuration(
         main={"size": cfg.size, "format": cfg.format},
         buffer_count=cfg.buffer_count,
-        transform=Transform(vflip=1, hflip=1)
+        # transform=Transform(vflip=1, hflip=1)
     )
     cam.configure(camera_cfg)
     # Optional: hint FPS/Exposure. Commented to keep defaults.
@@ -122,8 +123,7 @@ def turn_right() -> None:
     stop()
 
 
-def detect_obstacle_from_disparity(disparity: np.ndarray, roi: tuple, thresh_disp: int,
-                                   occupancy_ratio: float):
+def detect_obstacle_from_disparity(disparity: np.ndarray, roi: tuple, thresh_disp: int, occupancy_ratio: float):
     x0, x1, y0, y1 = roi
     roi_disp = disparity[y0:y1, x0:x1]
     # normalize to 0-255 for thresholding/visualization

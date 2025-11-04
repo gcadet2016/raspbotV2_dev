@@ -1,6 +1,8 @@
 # Testé le 2025-10-29 
 # Code uniquement développé pour caméra Gauche (L)
 # A compléter pour caméra Droite (R) si besoin
+# Doc https://docs.opencv.org/4.x/dc/dbb/tutorial_py_calibration.html
+
 
 import cv2
 # import glob
