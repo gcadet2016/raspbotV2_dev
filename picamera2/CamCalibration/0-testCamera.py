@@ -17,5 +17,5 @@ picam2.start()
 if not os.path.exists(save_path):                   # save_path defined in CalibrationConfig.py
     os.mkdir(save_path)
 
-time.sleep(5)
+time.sleep(10)
 picam2.stop()
