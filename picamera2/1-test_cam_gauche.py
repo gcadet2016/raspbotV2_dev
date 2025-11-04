@@ -10,7 +10,7 @@ from picamera2 import Picamera2, Preview
 
 picam2_gauche = Picamera2(1)
 
-preview_config_gauche = picam2_gauche.create_preview_configuration(main={"size": (800, 600)})
+preview_config_gauche = picam2_gauche.create_preview_configuration(main={"size": (800, 600)}, transform=Transform(vflip=1, hflip=1))
 
 picam2_gauche.configure(preview_config_gauche)
 
