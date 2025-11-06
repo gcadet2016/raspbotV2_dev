@@ -11,10 +11,10 @@ import configparser
 
 global DEBUG
 DEBUG = False
-from lib.stereoCalibration import Calibration
-from lib.stereoCalibration import IMX219_StereoCalibCollector
-from lib.stereo_match import disparity_map, stereo_match
-from lib.blockMatchTuning import blockMatchTuning
+from appLib.stereoCalibration import Calibration
+from appLib.stereoCalibration import IMX219_StereoCalibCollector
+from appLib.stereo_match import disparity_map, stereo_match
+from appLib.blockMatchTuning import blockMatchTuning
 
 APP_FOLDER_PATH = str(Path.home()) + '/raspbotV2_dev/stereoVision/'
 

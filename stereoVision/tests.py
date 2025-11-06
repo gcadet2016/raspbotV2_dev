@@ -2,7 +2,9 @@
 import cv2
 import sys, os, platform
 
-from lib import env_detect as e
+from appLib import env_detect as e
+
+# ----- Print environment information -----
 print("Environment:", e.get_runtime_env())
 print("Is environment WSL:", e.is_wsl())
 print("Is environment Raspberry Pi:", e.is_raspberry_pi())
