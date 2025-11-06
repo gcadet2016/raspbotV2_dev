@@ -25,17 +25,19 @@ class blockMatchTuning:
         self.config = config
         self.Left_Stereo_Map_x, self.Left_Stereo_Map_y, self.Right_Stereo_Map_x, self.Right_Stereo_Map_y = load_stereo_map(self.config['stereo_map_path'])
         
-        self.picam2_right = camera.picam2(
+        self.picam2_right = camera.picam2(id= self.config["CAM_RIGHT_ID"],
             size=(config["CAM_WIDTH"], config["CAM_HEIGHT"]),
             format=config["IMG_FMT"],
             buffer_count=config["BUFFER_COUNT"]
         )
-        self.picam2_left = camera.picam2(
+        self.picam2_left = camera.picam2(id= self.config["CAM_LEFT_ID"],
             size=(config["CAM_WIDTH"], config["CAM_HEIGHT"]),
             format=config["IMG_FMT"],
             buffer_count=config["BUFFER_COUNT"]
         )
         
+    def nothing(x):
+        pass
 
     def run(self):
         #cfg = CameraConfig()
@@ -77,23 +79,23 @@ class blockMatchTuning:
         cv2.namedWindow('disp',cv2.WINDOW_NORMAL)
         cv2.resizeWindow('disp',600,600)
         
-        cv2.createTrackbar('numDisparities','disp',1,17,nothing)
-        cv2.createTrackbar('blockSize','disp',5,50,nothing)
-        cv2.createTrackbar('preFilterType','disp',1,1,nothing)
-        cv2.createTrackbar('preFilterSize','disp',2,25,nothing)
-        cv2.createTrackbar('preFilterCap','disp',5,62,nothing)
-        cv2.createTrackbar('textureThreshold','disp',10,100,nothing)
-        cv2.createTrackbar('uniquenessRatio','disp',15,100,nothing)
-        cv2.createTrackbar('speckleRange','disp',0,100,nothing)
-        cv2.createTrackbar('speckleWindowSize','disp',3,25,nothing)
-        cv2.createTrackbar('disp12MaxDiff','disp',5,25,nothing)
-        cv2.createTrackbar('minDisparity','disp',5,25,nothing)
-        
+        cv2.createTrackbar('numDisparities','disp',1,17,self.nothing)
+        cv2.createTrackbar('blockSize','disp',5,50,self.nothing)
+        cv2.createTrackbar('preFilterType','disp',1,1,self.nothing)
+        cv2.createTrackbar('preFilterSize','disp',2,25,self.nothing)
+        cv2.createTrackbar('preFilterCap','disp',5,62,self.nothing)
+        cv2.createTrackbar('textureThreshold','disp',10,100,self.nothing)
+        cv2.createTrackbar('uniquenessRatio','disp',15,100,self.nothing)
+        cv2.createTrackbar('speckleRange','disp',0,100,self.nothing)
+        cv2.createTrackbar('speckleWindowSize','disp',3,25,self.nothing)
+        cv2.createTrackbar('disp12MaxDiff','disp',5,25,self.nothing)
+        cv2.createTrackbar('minDisparity','disp',5,25,self.nothing)
+
         # Creating an object of StereoBM algorithm
         stereo = cv2.StereoBM_create()
         
         # Sanity check
-        imgL = self.picam2_left.capture_array()  # BGR888
+        imgL = self.picam2_left.cam.capture_array()  # BGR888
         if imgL is not None:
             imgL_gray = cv2.cvtColor(imgL,cv2.COLOR_BGR2GRAY)
             h, w = imgL_gray.shape[:2]
@@ -117,8 +119,8 @@ class blockMatchTuning:
             # Capturing and storing left and right camera images
             # retL, imgL= CamL.read()
             # retR, imgR= CamR.read()
-            imgR = self.picam2_right.capture_array()  # BGR888
-            imgL = self.picam2_left.capture_array()  # BGR888
+            imgR = self.picam2_right.cam.capture_array()  # BGR888
+            imgL = self.picam2_left.cam.capture_array()  # BGR888
 
             if imgL is not None and imgR is not None:
                 imgR_gray = cv2.cvtColor(imgR,cv2.COLOR_BGR2GRAY)
@@ -202,4 +204,3 @@ class blockMatchTuning:
         self.picam2_right.close()
         self.picam2_left.close()
         cv2.destroyAllWindows()
-
