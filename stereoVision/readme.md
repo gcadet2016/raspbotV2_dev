@@ -32,3 +32,10 @@ Sur rapberryPi: tester la capture d'image pour le tracé des épipolar lines
 cd stereoVision
 python main.py -cmd epipolar -c
 ```
+
+## Block match tuning
+Sur RapsberryPi seulement
+```
+cd stereoVision
+python main.py -cmd tuning
+```
