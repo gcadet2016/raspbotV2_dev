@@ -16,7 +16,7 @@ class picam2:
         # format: str = IMG_FMT  # good CPU format; convert to gray in cv2
         # buffer_count: int = 2    # keep latency low
 
-        self.cam = Picamera2(index)
+        self.cam = Picamera2(id)
         camera_cfg = self.cam.create_preview_configuration(
             main={"size": size, "format": format},
             buffer_count=buffer_count,
