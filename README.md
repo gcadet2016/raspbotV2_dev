@@ -59,3 +59,15 @@ cd /root/raspbotV2_dev
 pyenv local 3.11.2
 ```
 Cela crée un fichier .python-version et active 3.11.2 dès que vous êtes dans ce dossier.
+
+Vérifications rapides
+```
+python -V
+which python
+pip -V
+```
+
+Astuce: si vous avez requirements.txt, vous pouvez le cibler:
+```
+pip install -r Depth-Perception-Using-Stereo-Camera/python/requirements.txt
+```
