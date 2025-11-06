@@ -16,10 +16,10 @@ picamRight.configure(camera_config)
 picamLeft.configure(camera_config)
 
 # Ci-dessous des paramètres d'affichage de la préview
-# picamRight.start_preview(Preview.QT, x=10, y=200, width=400, height=300, transform=Transform(vflip=1, hflip=1))
-# picamLeft.start_preview(Preview.QT, x=510, y=200, width=400, height=300, transform=Transform(vflip=1, hflip=1))
-picamRight.start_preview(Preview.QT, x=10, y=200, width=400, height=300)
-picamLeft.start_preview(Preview.QT, x=510, y=200, width=400, height=300)
+picamRight.start_preview(Preview.QT, x=10, y=200, width=400, height=300, transform=Transform(vflip=1, hflip=1))
+picamLeft.start_preview(Preview.QT, x=510, y=200, width=400, height=300, transform=Transform(vflip=1, hflip=1))
+# picamRight.start_preview(Preview.QT, x=10, y=200, width=400, height=300)
+# picamLeft.start_preview(Preview.QT, x=510, y=200, width=400, height=300)
 
 picamRight.start()
 picamLeft.start()

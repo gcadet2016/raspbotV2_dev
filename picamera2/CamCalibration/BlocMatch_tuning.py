@@ -1,0 +1,209 @@
+# Source original: https://learnopencv.com/depth-perception-using-stereo-camera-python-c/
+# Adapté à picamera2 et camera stéréo Raspberry Pi
+#
+# Prérequis
+#  - fichier 'stereo_rectify_maps.xml' généré par 'stereoCalibration.py'
+
+# The GUI created using the above code will help us change the Block Matching algorithm’s different parameters.
+# We can also store the parameters using the FileStorage class of OpenCV.
+# To know more about the usage of FileStorage class, refer to https://learnopencv.com/making-a-low-cost-stereo-camera-using-opencv/
+
+import numpy as np 
+import cv2
+from CalibrationConfig import * 
+from picamera2 import Picamera2
+from libcamera import Transform
+from dataclasses import dataclass
+
+# --- Configuration ---
+
+
+@dataclass
+class CameraConfig:
+    size: tuple = (CAM_WIDTH, CAM_HEIGHT)
+    format: str = IMG_FMT  # good CPU format; convert to gray in cv2
+    buffer_count: int = 2    # keep latency low
+
+def create_picam(index: int, cfg: CameraConfig) -> Picamera2:
+    cam = Picamera2(index)
+    camera_cfg = cam.create_preview_configuration(
+        main={"size": cfg.size, "format": cfg.format},
+        buffer_count=cfg.buffer_count,
+        #transform=Transform(vflip=1, hflip=1)
+    )
+    cam.configure(camera_cfg)
+    # Optional: hint FPS/Exposure. Commented to keep defaults.
+    # cam.set_controls({"FrameDurationLimits": (33333, 33333)})  # ~30 fps
+    cam.start()
+    return cam
+
+def main():
+    cfg = CameraConfig()
+    # Initialize cameras (Right then Left to match indices used in comments)
+    picam_r = create_picam(CAM_RIGHT_INDEX, cfg)
+    picam_l = create_picam(CAM_LEFT_INDEX, cfg)
+
+    # Check for left and right camera IDs
+    # These values can change depending on the system
+    CamL_id = CAM_LEFT_INDEX # Camera ID for left camera
+    CamR_id = CAM_RIGHT_INDEX # Camera ID for right camera
+    
+    # Grab both frames; calling capture_array sequentially gives near-simultaneous frames.
+    # CamR = picam_r.capture_array()  # BGR888
+    # CamL = picam_l.capture_array()  # BGR888
+    # CamL= cv2.VideoCapture(CamL_id)
+    # CamR= cv2.VideoCapture(CamR_id)
+    
+    # Reading the mapping values for stereo image rectification
+    # Voir article: https://learnopencv.com/making-a-low-cost-stereo-camera-using-opencv/ (step 4)
+    print("Loading stereo rectify maps from:", stereo_map_path + "stereo_rectify_maps.xml")
+    cv_file = cv2.FileStorage(stereo_map_path + "stereo_rectify_maps.xml", cv2.FILE_STORAGE_READ)
+    assert cv_file.isOpened(), "Rectify maps file not found/opened"
+    Left_Stereo_Map_x = cv_file.getNode("Left_Stereo_Map_x").mat()
+    Left_Stereo_Map_y = cv_file.getNode("Left_Stereo_Map_y").mat()
+    Right_Stereo_Map_x = cv_file.getNode("Right_Stereo_Map_x").mat()
+    Right_Stereo_Map_y = cv_file.getNode("Right_Stereo_Map_y").mat()
+    cv_file.release()
+    print("Stereo rectify maps loaded.")
+    print("Verifying rectify maps:")
+    assert Left_Stereo_Map_x is not None and Left_Stereo_Map_x.size != 0, "Left_Stereo_Map_x empty"
+    assert Left_Stereo_Map_y is not None and Left_Stereo_Map_y.size != 0, "Left_Stereo_Map_y empty"
+    print("Left_Stereo_Map_x.shape:", Left_Stereo_Map_x.shape)
+    assert Right_Stereo_Map_x is not None and Right_Stereo_Map_x.size != 0, "Right_Stereo_Map_x empty"
+    assert Right_Stereo_Map_y is not None and Right_Stereo_Map_y.size != 0, "Right_Stereo_Map_y empty"
+    print("Right_Stereo_Map_x.shape:", Right_Stereo_Map_x.shape)
+
+    def nothing(x):
+        pass
+    
+    cv2.namedWindow('disp',cv2.WINDOW_NORMAL)
+    cv2.resizeWindow('disp',600,600)
+    
+    cv2.createTrackbar('numDisparities','disp',1,17,nothing)
+    cv2.createTrackbar('blockSize','disp',5,50,nothing)
+    cv2.createTrackbar('preFilterType','disp',1,1,nothing)
+    cv2.createTrackbar('preFilterSize','disp',2,25,nothing)
+    cv2.createTrackbar('preFilterCap','disp',5,62,nothing)
+    cv2.createTrackbar('textureThreshold','disp',10,100,nothing)
+    cv2.createTrackbar('uniquenessRatio','disp',15,100,nothing)
+    cv2.createTrackbar('speckleRange','disp',0,100,nothing)
+    cv2.createTrackbar('speckleWindowSize','disp',3,25,nothing)
+    cv2.createTrackbar('disp12MaxDiff','disp',5,25,nothing)
+    cv2.createTrackbar('minDisparity','disp',5,25,nothing)
+    
+    # Creating an object of StereoBM algorithm
+    stereo = cv2.StereoBM_create()
+    
+    # Sanity check
+    imgL = picam_l.capture_array()  # BGR888
+    if imgL is not None:
+        imgL_gray = cv2.cvtColor(imgL,cv2.COLOR_BGR2GRAY)
+        h, w = imgL_gray.shape[:2]
+        for M in (Left_Stereo_Map_x, Left_Stereo_Map_y, Right_Stereo_Map_x, Right_Stereo_Map_y):
+            print("Map shape:", M.shape, M.dtype)
+            print(f"Expected shape (img shape): ({h}, {w}), dtype: float32")
+            assert M.shape == (h, w), "Map shape must match image shape"
+            assert M.dtype == np.float32, "Expect CV_32F maps"
+    else:
+        print("Initial left image capture failed")
+        return
+
+    ibL = np.mean((Left_Stereo_Map_x >= 0) & (Left_Stereo_Map_x <= w-1) & (Left_Stereo_Map_y >= 0) & (Left_Stereo_Map_y <= h-1))
+    ibR = np.mean((Right_Stereo_Map_x >= 0) & (Right_Stereo_Map_x <= w-1) & (Right_Stereo_Map_y >= 0) & (Right_Stereo_Map_y <= h-1))
+    print("in-bounds ratio L,R:", ibL, ibR)
+
+    # Boucle principale: s'arrête quand la touche ESC (27) est pressée
+    print("Press ESC to exit")
+    key = -1
+    while key != 27:
+        # Capturing and storing left and right camera images
+        # retL, imgL= CamL.read()
+        # retR, imgR= CamR.read()
+        imgR = picam_r.capture_array()  # BGR888
+        imgL = picam_l.capture_array()  # BGR888
+
+        if imgL is not None and imgR is not None:
+            imgR_gray = cv2.cvtColor(imgR,cv2.COLOR_BGR2GRAY)
+            imgL_gray = cv2.cvtColor(imgL,cv2.COLOR_BGR2GRAY)
+        
+            # Applying stereo image rectification on the left image
+            Left_nice= cv2.remap(imgL_gray,
+                Left_Stereo_Map_x,
+                Left_Stereo_Map_y,
+                cv2.INTER_LANCZOS4,
+                cv2.BORDER_REPLICATE, #cv2.BORDER_CONSTANT,
+                0)
+        
+            # Applying stereo image rectification on the right image
+            Right_nice= cv2.remap(imgR_gray,
+                    Right_Stereo_Map_x,
+                    Right_Stereo_Map_y,
+                    cv2.INTER_LANCZOS4,
+                    cv2.BORDER_REPLICATE, #cv2.BORDER_CONSTANT,
+                    0)
+        
+            # Updating the parameters based on the trackbar positions
+            numDisparities = cv2.getTrackbarPos('numDisparities','disp')*16
+            blockSize = cv2.getTrackbarPos('blockSize','disp')*2 + 5
+            preFilterType = cv2.getTrackbarPos('preFilterType','disp')
+            preFilterSize = cv2.getTrackbarPos('preFilterSize','disp')*2 + 5
+            preFilterCap = cv2.getTrackbarPos('preFilterCap','disp')
+            textureThreshold = cv2.getTrackbarPos('textureThreshold','disp')
+            uniquenessRatio = cv2.getTrackbarPos('uniquenessRatio','disp')
+            speckleRange = cv2.getTrackbarPos('speckleRange','disp')
+            speckleWindowSize = cv2.getTrackbarPos('speckleWindowSize','disp')*2
+            disp12MaxDiff = cv2.getTrackbarPos('disp12MaxDiff','disp')
+            minDisparity = cv2.getTrackbarPos('minDisparity','disp')
+            
+            # Setting the updated parameters before computing disparity map
+            stereo.setNumDisparities(numDisparities)
+            stereo.setBlockSize(blockSize)
+            stereo.setPreFilterType(preFilterType)
+            stereo.setPreFilterSize(preFilterSize)
+            stereo.setPreFilterCap(preFilterCap)
+            stereo.setTextureThreshold(textureThreshold)
+            stereo.setUniquenessRatio(uniquenessRatio)
+            stereo.setSpeckleRange(speckleRange)
+            stereo.setSpeckleWindowSize(speckleWindowSize)
+            stereo.setDisp12MaxDiff(disp12MaxDiff)
+            stereo.setMinDisparity(minDisparity)
+        
+            # Calculating disparity using the StereoBM algorithm
+            disparity = stereo.compute(Left_nice,Right_nice)
+            # disparity = stereo.compute(imgL_gray,imgR_gray)       # For testing only
+
+            # NOTE: Code returns a 16bit signed single channel image,
+            # CV_16S containing a disparity map scaled by 16. Hence it 
+            # is essential to convert it to CV_32F and scale it down 16 times.
+        
+            # Converting to float32 
+            disparity = disparity.astype(np.float32)
+        
+            # Scaling down the disparity values and normalizing them 
+            disparity = (disparity/16.0 - minDisparity)/numDisparities
+        
+            # Displaying the disparity map
+            cv2.imshow("disp",disparity)
+            
+            # For testing purpose: 
+            # cv2.imshow("disp", imgR)      OK
+            # cv2.imshow("disp", imgL_gray) OK
+            # cv2.imshow("disp", Right_nice) OK
+
+            # Lecture clavier et mise à jour de la condition de boucle
+            key = cv2.waitKey(1) & 0xFF
+    
+        else:
+            # CamL= cv2.VideoCapture(CamL_id)
+            # CamR= cv2.VideoCapture(CamR_id)
+            print("No Frame")
+
+    # Release the camera resources and close all windows
+    picam_r.stop()
+    picam_l.stop()
+    picam_r.close()
+    picam_l.close()
+    cv2.destroyAllWindows()
+
+if __name__ == "__main__":
+    main()
